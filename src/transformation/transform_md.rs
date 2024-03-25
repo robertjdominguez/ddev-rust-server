@@ -8,8 +8,18 @@ use std::fs;
 */
 pub fn transform_markdown_to_html(filename: String) -> String {
     let path_to_file = format!("posts/{}.md", filename);
-
+    let template = fs::read_to_string("templates/post.html");
     let contents = fs::read_to_string(&path_to_file);
+
+    // Here, we're handling any error since read_to_string returns a Result that could be a String
+    // or Error
+    let template = match template {
+        Ok(template) => template,
+
+        Err(error) => return format!("Error getting the post template: {}", error),
+    };
+
+    // Then, we're doing the same with our contents to make sure they're there
     let contents = match contents {
         Ok(contents) => contents,
 
@@ -24,7 +34,10 @@ pub fn transform_markdown_to_html(filename: String) -> String {
             let mut html_output = String::new();
             pulldown_cmark::html::push_html(&mut html_output, parser);
 
-            html_output
+            // Finally, we'll plug the html_output into our template
+            let combined_html = template.replace("{}", &html_output);
+
+            combined_html.to_string()
         }
         None => r#"No frontmatter found."#.to_string(),
     }

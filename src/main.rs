@@ -1,11 +1,34 @@
+use actix_files as actix_fs;
 use actix_web::{get, middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
+use std::fs;
 mod transformation;
 
-use transformation::transform_markdown_to_html;
+use transformation::{create_post, transform_markdown_to_html, Post};
+
+#[get("/")]
+async fn get_index() -> impl Responder {
+    let html = fs::read_to_string("templates/index.html");
+
+    let response = match html {
+        Ok(html) => HttpResponse::Ok().body(html),
+        Err(error) => HttpResponse::InternalServerError()
+            .body(format!("Error getting the index template: {}", error)),
+    };
+
+    response
+}
 
 #[get("/posts")]
 async fn posts() -> impl Responder {
-    HttpResponse::Ok().body("Posts")
+    let html_wrapper = fs::read_to_string("templates/posts.html");
+
+    let response = match html_wrapper {
+        Ok(html) => HttpResponse::Ok().body(html),
+        Err(error) => HttpResponse::InternalServerError()
+            .body(format!("Error getting the posts template: {}", error)),
+    };
+
+    response
 }
 
 /**
@@ -26,7 +49,9 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(Logger::default())
             .service(posts)
+            .service(get_index)
             .route("/posts/{slug}", web::get().to(show_post))
+            .service(actix_fs::Files::new("/static", "static").show_files_listing())
     })
     .bind(("127.0.0.1", 8080))?
     .run()
