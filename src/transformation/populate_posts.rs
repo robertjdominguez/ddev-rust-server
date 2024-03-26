@@ -1,15 +1,16 @@
 use crate::transformation::transform_md;
 use chrono::{DateTime, NaiveDateTime, Utc};
+use std::error::Error;
 use std::io;
 use tokio::fs;
 
-#[derive(Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct CardContent {
-    pub slug: &str,
-    pub title: &str,
-    pub hook: &str,
-    pub image: &str,
-    pub created_at: &str,
+    pub slug: String,
+    pub title: String,
+    pub hook: String,
+    pub image: String,
+    pub created_at: String,
 }
 
 // We'll need a function that can get all the posts from the /posts directory
@@ -34,47 +35,34 @@ pub async fn get_posts(dir: String) -> Result<Vec<String>, io::Error> {
 /** After we have a file's name, we can then read the file and create a Post type for it
 * to then loop over and generate a card.
 */
-pub async fn read_file_and_create_post(filename: &str) -> Result<String, String> {
+pub async fn read_file_and_create_card(filename: &str) -> Result<CardContent, Box<dyn Error>> {
     let file_path = format!("posts/{}", filename);
-    let file = tokio::fs::read_to_string(file_path).await;
+    let file_contents = fs::read_to_string(file_path).await?;
 
-    let file = match file {
-        Ok(file) => file,
-        Err(e) => return Err(format!("Error reading file: {}", e)),
-    };
+    let (frontmatter, _main_content) = transform_md::split_frontmatter_from_content(file_contents)
+        .ok_or("No frontmatter found.")?;
 
-    // Use the splitter function from transform_md to get the frontmatter
-    let split_contents = transform_md::split_frontmatter_from_content(file);
-
-    match split_contents {
-        Some((frontmatter, _main_content)) => {
-            // We'll split frontmatter by each line and then by colons
-
-            for (index, line) in frontmatter.lines().enumerate() {
-                let mut card = CardContent {
-                    title: "Sample",
-                    hook: "Sample",
-                    image: "Sample",
-                    slug: "Sample",
-                    created_at: "Sample",
-                };
-
-                let mut values = line.split_once(":");
-                match values {
-                    Some((key, value)) => {
-                        if index == 0 {
-                            card.title = value;
-                        }
-                        log::debug!("{:?}", key);
-                    }
-                    None => log::debug!("Well, shit"),
+    let card = frontmatter
+        .lines()
+        .fold(CardContent::default(), |mut card, line| {
+            if let Some((key, value)) = line.split_once(':') {
+                match key.trim() {
+                    "title" => card.title = value.trim().to_string(),
+                    "hook" => card.hook = value.trim().to_string(),
+                    "slug" => card.slug = value.trim().to_string(),
+                    "created_at" => card.created_at = value.trim().to_string(),
+                    "image" => card.image = value.trim().to_string(),
+                    _ => log::warn!("Unexpected key in frontmatter: {}", key),
                 }
+            } else {
+                log::debug!("Ignoring line without a colon: {}", line);
             }
+            card
+        });
 
-            Ok(frontmatter)
-        }
-        None => Err("No frontmatter found.".to_string()),
-    }
+    log::debug!("{:?}", card);
+
+    Ok(card)
 }
 
 // This will parse our dates for us and we can use it in the re-shuffling algorithm below

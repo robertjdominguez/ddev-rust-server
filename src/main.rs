@@ -4,7 +4,9 @@ use log::debug;
 use std::fs;
 mod transformation;
 
-use transformation::{get_posts, read_file_and_create_post, transform_markdown_to_html};
+use transformation::{
+    get_posts, read_file_and_create_card, transform_markdown_to_html, CardContent,
+};
 
 #[get("/")]
 async fn get_index() -> impl Responder {
@@ -25,10 +27,24 @@ async fn posts() -> impl Responder {
 
     match get_posts("posts".to_string()).await {
         Ok(posts) => {
+            // Placholder for cards
+            let mut cards: Vec<CardContent> = vec![];
+
             for file in &posts {
                 // At this point, we have the filenames and can generate a card for each
-                let frontmatter = read_file_and_create_post(file).await;
+                let card = read_file_and_create_card(file).await;
+
+                match card {
+                    Ok(card) => {
+                        cards.push(card);
+                    }
+                    Err(e) => {
+                        log::error!("Shit")
+                    }
+                }
             }
+
+            log::debug!("{:?}", cards);
             HttpResponse::Ok().body("Placeholder response with posts data")
         }
         Err(e) => {
