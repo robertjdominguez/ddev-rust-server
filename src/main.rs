@@ -1,9 +1,10 @@
 use actix_files as actix_fs;
 use actix_web::{get, middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
+use log::debug;
 use std::fs;
 mod transformation;
 
-use transformation::{create_post, transform_markdown_to_html, Post};
+use transformation::{get_posts, read_file_and_create_post, transform_markdown_to_html};
 
 #[get("/")]
 async fn get_index() -> impl Responder {
@@ -22,13 +23,19 @@ async fn get_index() -> impl Responder {
 async fn posts() -> impl Responder {
     let html_wrapper = fs::read_to_string("templates/posts.html");
 
-    let response = match html_wrapper {
-        Ok(html) => HttpResponse::Ok().body(html),
-        Err(error) => HttpResponse::InternalServerError()
-            .body(format!("Error getting the posts template: {}", error)),
-    };
-
-    response
+    match get_posts("posts".to_string()).await {
+        Ok(posts) => {
+            for file in &posts {
+                // At this point, we have the filenames and can generate a card for each
+                let frontmatter = read_file_and_create_post(file).await;
+            }
+            HttpResponse::Ok().body("Placeholder response with posts data")
+        }
+        Err(e) => {
+            log::error!("Failed to get posts: {}", e);
+            HttpResponse::InternalServerError().body("Error retrieving posts")
+        }
+    }
 }
 
 /**
