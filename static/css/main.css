@@ -363,7 +363,7 @@ pre {
   transition: ease-in-out 0.2s;
 }
 
-a:hover {
+.post-container a:hover {
   color: var(--blue);
   border-bottom: solid 1px var(--blue);
 }

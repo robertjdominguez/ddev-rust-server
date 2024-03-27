@@ -1,5 +1,4 @@
 use crate::transformation::transform_md;
-use chrono::{DateTime, NaiveDateTime, Utc};
 use std::error::Error;
 use std::io;
 use tokio::fs;
@@ -15,7 +14,6 @@ pub struct CardContent {
 
 // We'll need a function that can get all the posts from the /posts directory
 pub async fn get_posts(dir: String) -> Result<Vec<String>, io::Error> {
-    log::debug!("Here!");
     let mut file_names = Vec::new();
     let mut entries = fs::read_dir(dir).await?;
 
@@ -54,20 +52,11 @@ pub async fn read_file_and_create_card(filename: &str) -> Result<CardContent, Bo
                     "image" => card.image = value.trim().to_string(),
                     _ => log::warn!("Unexpected key in frontmatter: {}", key),
                 }
-            } else {
-                log::debug!("Ignoring line without a colon: {}", line);
             }
             card
         });
 
-    log::debug!("{:?}", card);
-
     Ok(card)
-}
-
-// This will parse our dates for us and we can use it in the re-shuffling algorithm below
-fn parse_date(date_str: &str) -> NaiveDateTime {
-    NaiveDateTime::parse_from_str(date_str, "%Y-%m-%d %H:%M:%S %z").expect("Failed to parse date")
 }
 
 /** We'll also need a function to order our posts from newest to oldest

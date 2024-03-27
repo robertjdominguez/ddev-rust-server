@@ -1,11 +1,11 @@
 use actix_files as actix_fs;
 use actix_web::{get, middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
-use log::debug;
 use std::fs;
 mod transformation;
+use chrono::DateTime;
 
 use transformation::{
-    get_posts, read_file_and_create_card, transform_markdown_to_html, CardContent,
+    get_posts, order_cards, read_file_and_create_card, transform_markdown_to_html,
 };
 
 #[get("/")]
@@ -23,35 +23,68 @@ async fn get_index() -> impl Responder {
 
 #[get("/posts")]
 async fn posts() -> impl Responder {
-    let html_wrapper = fs::read_to_string("templates/posts.html");
-
-    match get_posts("posts".to_string()).await {
-        Ok(posts) => {
-            // Placholder for cards
-            let mut cards: Vec<CardContent> = vec![];
-
-            for file in &posts {
-                // At this point, we have the filenames and can generate a card for each
-                let card = read_file_and_create_card(file).await;
-
-                match card {
-                    Ok(card) => {
-                        cards.push(card);
-                    }
-                    Err(e) => {
-                        log::error!("Shit")
-                    }
-                }
-            }
-
-            log::debug!("{:?}", cards);
-            HttpResponse::Ok().body("Placeholder response with posts data")
-        }
+    // Read the HTML wrapper template
+    let html_wrapper = match fs::read_to_string("templates/posts.html") {
+        Ok(content) => content,
         Err(e) => {
-            log::error!("Failed to get posts: {}", e);
-            HttpResponse::InternalServerError().body("Error retrieving posts")
+            return HttpResponse::InternalServerError()
+                .body(format!("Error reading HTML wrapper: {}", e))
+        }
+    };
+
+    // Attempt to fetch posts
+    let posts = match get_posts("posts".to_string()).await {
+        Ok(posts) => posts,
+        Err(e) => {
+            return HttpResponse::InternalServerError().body(format!("Error fetching posts: {}", e))
+        }
+    };
+
+    // Process each post into a card
+    let mut cards = Vec::new();
+    for post in posts {
+        match read_file_and_create_card(&post).await {
+            Ok(card) => cards.push(card),
+            Err(e) => {
+                return HttpResponse::InternalServerError()
+                    .body(format!("Error processing a post: {}", e))
+            }
         }
     }
+
+    // Read the card template (assuming it's static and doesn't change per card)
+    let card_template = match fs::read_to_string("templates/card.html") {
+        Ok(template) => template,
+        Err(e) => {
+            return HttpResponse::InternalServerError()
+                .body(format!("Error reading card template: {}", e))
+        }
+    };
+
+    let cards = order_cards(&cards).await;
+    // Construct the HTML content for each card
+    let cards_html: String = cards
+        .iter()
+        .map(|card| {
+            // Attempt to parse the datetime string
+            let formatted_date = match DateTime::parse_from_rfc3339(&card.created_at) {
+                Ok(datetime) => datetime.format("%B %d, %Y %H:%M").to_string(),
+                Err(_) => "Invalid date".to_string(), // Fallback in case of error
+            };
+
+            card_template
+                .replace("{title}", &card.title.replace("\"", ""))
+                .replace("{date}", &formatted_date)
+                .replace("{hook}", &card.hook.replace("\"", ""))
+                .replace("{slug}", &card.slug)
+                .replace("{image}", &card.image)
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    // Insert the cards HTML into the HTML wrapper
+    let final_html = html_wrapper.replace("{}", &cards_html);
+
+    HttpResponse::Ok().body(final_html)
 }
 
 /**
