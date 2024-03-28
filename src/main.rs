@@ -109,7 +109,7 @@ async fn main() -> std::io::Result<()> {
             .route("/posts/{slug}", web::get().to(show_post))
             .service(actix_fs::Files::new("/static", "static").show_files_listing())
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("0.0.0.0", 8080))?
     .run()
     .await
 }
