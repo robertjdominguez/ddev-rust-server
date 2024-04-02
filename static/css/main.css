@@ -259,8 +259,19 @@ img {
 
 .links {
   display: grid;
+  width: 125px;
   grid-template-columns: 1fr 1fr 1fr;
   margin-top: 2vh;
+  margin-bottom: 2vh;
+  place-items: center start;
+  img {
+    width: 20px;
+    transition: ease-in-out 0.2s;
+
+    &:hover {
+      scale: 1.15;
+    }
+  }
 }
 
 a {
