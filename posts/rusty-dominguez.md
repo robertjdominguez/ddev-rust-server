@@ -23,7 +23,7 @@ file and make heads and tails of what's going on.
 
 I did this by focusing my efforts on migrating from TypeScript to Rust and using services I've already built in
 TypeScript as my stepping stones. Then, I worked through how they would be constructed in Rust. Notably, this site —
-found in this repo — is the biggest step in that direction.
+found in this [repo](https://github.com/robertjdominguez/ddev-rust-server) — is the biggest step in that direction.
 
 ## Lessons learned
 
