@@ -330,6 +330,7 @@ a:hover {
 
 .post-container {
   margin: 10vh auto;
+  margin-top: 0;
   max-width: 100%;
   padding: 2vw;
   line-height: 1.9;
@@ -373,10 +374,13 @@ pre {
 .blog-image {
   width: 100%;
   height: 300px;
-  margin: 5vh auto;
+  margin: 0 auto;
   border-radius: 5px;
   background-position: center;
   background-size: cover;
+  background-repeat: no-repeat;
+  padding-left: 2vw;
+  padding-right: 2vw;
 }
 
 .post-container a {
@@ -389,4 +393,8 @@ pre {
 .post-container a:hover {
   color: var(--blue);
   border-bottom: solid 1px var(--blue);
+}
+
+.post-container li {
+  margin-left: 2rem;
 }

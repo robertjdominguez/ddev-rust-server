@@ -1,5 +1,6 @@
 use pulldown_cmark;
 use regex::Regex;
+use serde::Deserialize;
 use std::fs;
 
 /**
@@ -11,36 +12,65 @@ pub fn transform_markdown_to_html(filename: String) -> String {
     let template = fs::read_to_string("templates/post.html");
     let contents = fs::read_to_string(&path_to_file);
 
-    // Here, we're handling any error since read_to_string returns a Result that could be a String
-    // or Error
+    // Handle error if template or content cannot be read
     let template = match template {
         Ok(template) => template,
-
         Err(error) => return format!("Error getting the post template: {}", error),
     };
 
-    // Then, we're doing the same with our contents to make sure they're there
     let contents = match contents {
         Ok(contents) => contents,
-
         Err(error) => return format!("Error reading the file {}: {}", &path_to_file, error),
     };
 
     let split_contents = split_frontmatter_from_content(contents);
     match split_contents {
-        Some((_frontmatter, main_content)) => {
+        Some((frontmatter_str, main_content)) => {
             let parser = pulldown_cmark::Parser::new(&main_content);
 
             let mut html_output = String::new();
             pulldown_cmark::html::push_html(&mut html_output, parser);
 
-            // Finally, we'll plug the html_output into our template
-            let combined_html = template.replace("{}", &html_output);
+            // Parse frontmatter into struct
+            let frontmatter = match parse_frontmatter(&frontmatter_str) {
+                Some(fm) => fm,
+                None => return "Error parsing frontmatter.".to_string(),
+            };
+
+            // Replace placeholders in the template
+            let combined_html = template
+                .replace("{page_title}", &frontmatter.title)
+                .replace("{og_title}", &frontmatter.title)
+                .replace("{hook}", &frontmatter.hook)
+                .replace("{og_description}", &frontmatter.hook)
+                .replace("{og_image}", &frontmatter.image)
+                .replace("{slug}", &frontmatter.slug)
+                .replace("{post_image}", &frontmatter.image)
+                .replace("{post_content}", &html_output);
 
             combined_html.to_string()
         }
-        None => r#"No frontmatter found."#.to_string(),
+        None => "No frontmatter found.".to_string(),
     }
+}
+
+/**
+* Struct to hold frontmatter information.
+*/
+#[derive(Debug, Deserialize)]
+struct Frontmatter {
+    title: String,
+    hook: String,
+    slug: String,
+    created_at: String,
+    image: String,
+}
+
+/**
+* Parse frontmatter YAML into a Frontmatter struct.
+*/
+fn parse_frontmatter(frontmatter: &str) -> Option<Frontmatter> {
+    serde_yaml::from_str(frontmatter).ok()
 }
 
 /**

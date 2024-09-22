@@ -3,6 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <title>Dominguez Dev</title>
+    <meta property="og:title" content="{og_title}" />
+    <meta property="og:description" content="{og_description}" />
+    <meta property="description" content="{hook}" />
+    <meta property="og:image" content="https://dominguezdev.com{og_image}" />
+    <meta property="og:type" content="article" />
+    <meta property="article:author" content="Rob Dominguez" />
+    <meta property="og:url" content="https://dominguezdev.com/posts/{slug}" />
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <link rel="stylesheet" type="" href="/static/css/main.css" />
     <link rel="stylesheet" type="" href="/static/css/prism.css" />
@@ -52,7 +59,11 @@
           <a class="secondary" style="padding: 10 40" href="/posts">← Blog</a>
         </div>
         <div class="blog-content">
-          <div class="post-container">{}</div>
+          <div
+            class="blog-image"
+            style="background-image: url(&quot;{post_image}&quot;)"
+          ></div>
+          <div class="post-container">{post_content}</div>
         </div>
       </div>
     </main>
