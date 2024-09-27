@@ -398,3 +398,10 @@ pre {
 .post-container li {
   margin-left: 2rem;
 }
+
+.post-container blockquote {
+  color: grey;
+  margin-left: 2rem;
+  border-left: solid 2px grey;
+  padding-left: 1rem;
+}
