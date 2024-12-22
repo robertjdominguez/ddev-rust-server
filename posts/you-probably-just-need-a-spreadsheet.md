@@ -19,7 +19,7 @@ Recently, we started work at [Hasura](https://hasura.io) to improve our communit
 
 Ultimately, this is a bureaucratic task. That word can be discomforting: **bureaucratic**. It evokes connotations of red tape, needless hoops to jump through, and unnecessarily rigid procedures. Maybe a better word choice is **administrative**? These tasks, while not in the least bit sexy, are wholly required to ensure goals are met and that users get the care and attention they need.
 
-Do you know what a administrator (or bureaucrat) loves? The answer isn't a DB...it's a spreadsheet.
+Do you know what an administrator (or a bureaucrat) loves? The answer isn't a DB...it's a spreadsheet.
 
 ## The Repo
 
@@ -104,7 +104,7 @@ Now, this spreadsheet works as our single source of truth easily enabling all of
 
 - What's come through (summarized by ChatGPT, because...users aren't the most direct when they're confused)
 - If it's been acted on
-- It's state (open || closed)
+- Its state (open || closed)
 - A quick link out to access the source immediately
 
 ## Closing
