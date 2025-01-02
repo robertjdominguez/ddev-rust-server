@@ -1,8 +1,6 @@
 ---
 title: "Make the Essential Effortless"
-hook:
-  "If you're looking at making yourself more disciplined, it helps to make things as effortless as possible. Automation
-  is a beautiful thing when it helps you achieve your goals."
+hook: "If you're looking at making yourself more disciplined, it helps to make things as effortless as possible. Automation is a beautiful thing when it helps you achieve your goals."
 slug: new-year-same-me
 created_at: 2025-01-02T10:15:00.000Z
 image: /static/images/narcos.png
