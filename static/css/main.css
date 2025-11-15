@@ -36,6 +36,46 @@ body {
   animation: fadeIn 1s ease-out forwards;
 }
 
+.empty-state {
+  background: var(--dark-grey);
+  border: 1px solid var(--light-grey);
+  border-radius: 8px;
+  padding: 3rem 2rem;
+  max-width: 500px;
+  margin: 2rem auto;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+}
+
+.empty-state h3 {
+  color: var(--light-blue);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.empty-state p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  color: var(--white);
+}
+
+.empty-state a {
+  color: var(--light-blue);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.empty-state a:hover {
+  text-decoration: underline;
+}
+
 main {
   width: 100%;
 }
