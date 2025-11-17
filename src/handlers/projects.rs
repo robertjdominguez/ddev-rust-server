@@ -1,6 +1,6 @@
 use actix_web::{get, web, HttpResponse, Responder};
-use crate::models::{ProjectCard};
-use crate::services::{get_content_files, create_project_card, order_project_cards};
+use crate::models::{Project, ProjectCard};
+use crate::services::{get_content_files, create_project_card, create_project_from_file, order_project_cards};
 use chrono::DateTime;
 use std::fs;
 
@@ -81,6 +81,50 @@ pub async fn projects() -> impl Responder {
 }
 
 pub async fn show_project(slug: web::Path<String>) -> impl Responder {
-    // Stub implementation - returns a simple message for now
-    HttpResponse::Ok().body(format!("Project '{}' coming soon!", slug))
+    let slug = slug.into_inner();
+    let filename = format!("{}.md", slug);
+    
+    match create_project_from_file(&filename).await {
+        Ok(project) => {
+            let template = match fs::read_to_string("templates/project.html") {
+                Ok(template) => template,
+                Err(e) => {
+                    return HttpResponse::InternalServerError()
+                        .body(format!("Error reading project template: {}", e))
+                }
+            };
+
+            // Build project links HTML
+            let mut links_html = String::new();
+            if let Some(url) = &project.url {
+                links_html.push_str(&format!("<a href=\"{}\" target=\"_blank\" class=\"project-link\">Live Demo</a>", url));
+            }
+            if let Some(github) = &project.github {
+                if !links_html.is_empty() {
+                    links_html.push_str(" | ");
+                }
+                links_html.push_str(&format!("<a href=\"{}\" target=\"_blank\" class=\"project-link\">GitHub</a>", github));
+            }
+
+            let tech_stack_html = project.tech_stack.join(", ");
+
+            let html_content = template
+                .replace("{page_title}", &project.title)
+                .replace("{og_title}", &project.title)
+                .replace("{og_description}", &project.description)
+                .replace("{description}", &project.description)
+                .replace("{og_image}", &project.image)
+                .replace("{slug}", &project.slug)
+                .replace("{project_image}", &project.image)
+                .replace("{title}", &project.title)
+                .replace("{tech_stack}", &tech_stack_html)
+                .replace("{project_links}", &links_html)
+                .replace("{project_content}", &project.content.unwrap_or_default());
+
+            HttpResponse::Ok().body(html_content)
+        }
+        Err(e) => {
+            HttpResponse::InternalServerError().body(format!("Error loading project: {}", e))
+        }
+    }
 }

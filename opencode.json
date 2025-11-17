@@ -1,15 +1,16 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "provider": {
-    "ollama": {
+    "lm-studio": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "Ollama (local)",
+      "name": "LM Studio (local)",
       "options": {
-        "baseURL": "http://localhost:11434/v1"
+        "baseURL": "http://localhost:1234/v1",
+        "maxTokens": 3500
       },
       "models": {
-        "qwen2.5-coder:7b": {
-          "name": "Qwen2.5 Coder 7B"
+        "qwen2.5-coder-7b-instruct": {
+          "name": "Qwen"
         }
       }
     }

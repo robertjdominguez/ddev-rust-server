@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dominguez Dev</title>
+    <meta property="og:title" content="{og_title}" />
+    <meta property="og:description" content="{og_description}" />
+    <meta property="description" content="{description}" />
+    <meta property="og:image" content="https://dominguezdev.com{og_image}" />
+    <meta property="og:type" content="article" />
+    <meta property="article:author" content="Rob Dominguez" />
+    <meta property="og:url" content="https://dominguezdev.com/projects/{slug}" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <link rel="stylesheet" href="/static/css/main.css" />
+    <link rel="stylesheet" href="/static/css/prism.css" />
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-KE72QC3G9M"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-KE72QC3G9M");
+    </script>
+  </head>
+  <body>
+    <main>
+      <div class="blog-layout">
+        <div class="side-nav">
+          <div class="blog-img">
+            <img src="/static/images/face.png" />
+          </div>
+          <h3>Rob Dominguez</h3>
+          <small
+            >If you want to learn more about me, check out these posts. I've
+            also got all my social links available right here.</small
+          >
+          <br />
+          <div class="links">
+            <a href="https://github.com/robertjdominguez" target="_blank">
+              <img src="/static/images/github.svg" />
+            </a>
+            <a
+              href="https://www.linkedin.com/in/rob-dominguez-0b258b147/"
+              target="_blank"
+            >
+              <img src="/static/images/linkedin.svg" />
+            </a>
+            <a href="https://twitter.com/_RobDominguez" target="_blank">
+              <img src="/static/images/twitter.svg" />
+            </a>
+          </div>
+          <br />
+          <a class="secondary" style="padding: 10 40" href="/projects">← Projects</a>
+        </div>
+        <div class="blog-content">
+          <div
+            class="blog-image"
+            style="background-image: url(&quot;{project_image}&quot;)"
+          ></div>
+          <div class="project-header">
+            <h1>{title}</h1>
+            <p class="project-description">{description}</p>
+            <div class="project-meta">
+              <div class="tech-stack">
+                <strong>Tech Stack:</strong> {tech_stack}
+              </div>
+              <div class="project-links">
+                {project_links}
+              </div>
+            </div>
+          </div>
+          <div class="post-container">{project_content}</div>
+        </div>
+      </div>
+    </main>
+    <script src="/static/prism.js"></script>
+  </body>
+</html>
